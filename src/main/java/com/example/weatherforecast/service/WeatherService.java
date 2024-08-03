@@ -8,9 +8,12 @@ import com.example.weatherforecast.repository.ConditionRepos;
 import com.example.weatherforecast.repository.CurrentRepos;
 import com.example.weatherforecast.repository.LocationRepos;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,6 +41,9 @@ public class WeatherService {
     @Autowired
     private ConditionRepos conditionRepos;
 
+    private volatile String location ;
+    private static final Logger logger = LoggerFactory.getLogger(WeatherService.class);
+
     public WeatherResponse getWeather(String q, String key) {
         String apiUrl = url + "?q=" + q + "&key=" + key;
         ResponseEntity<WeatherResponse> responseEntity = restTemplate.getForEntity(apiUrl, WeatherResponse.class);
@@ -64,5 +70,19 @@ public class WeatherService {
 
         locationRepos.save(mapLocation);
  //
+    }
+
+    @Scheduled(fixedRate = 60000)//for every one minute update
+    public void scheduledWeatherUpdate() {
+        logger.info("Fetching weather data for scheduled update.");
+        getWeather(location, apiKey);
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getApiKey() {
+        return apiKey;
     }
 }

@@ -22,5 +22,15 @@ public class WeatherController {
         System.out.println(weather);
         return ResponseEntity.ok(weather);
     }
+    @GetMapping("/weather/update")
+    public ResponseEntity<?> manualWeatherUpdate(@RequestParam String location) {
+        WeatherResponse weather = weatherService.getWeather(location, weatherService.getApiKey());
+        return ResponseEntity.ok(weather);
+    }
+    @GetMapping("/weather/setLocation")
+    public ResponseEntity<?> setLocation(@RequestParam String location) {
+        weatherService.setLocation(location);
+        return ResponseEntity.ok("Location updated to " + location);
+    }
 
 }
